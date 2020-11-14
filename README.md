@@ -1,5 +1,8 @@
 # Sentiment-Analysis
-Title: What’s the vibe? Twitter Sentiment Analysis Final Project
+
+## Title: 
+
+What’s the vibe? Twitter Sentiment Analysis Final Project
 
 ## Who: 
 
