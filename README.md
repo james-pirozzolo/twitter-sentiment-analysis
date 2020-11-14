@@ -31,8 +31,8 @@ We found an interesting article that discusses a similar concept relating to sen
 
 ### Some urls: 
 
-https://towardsdatascience.com/sentiment-analysis-with-deep-learning-62d4d0166ef6
-http://help.sentiment140.com/for-students
+- https://towardsdatascience.com/sentiment-analysis-with-deep-learning-62d4d0166ef6
+- http://help.sentiment140.com/for-students
 
 ## Data: What data are you using (if any)?
 
