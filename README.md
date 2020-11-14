@@ -39,7 +39,7 @@ We found a dataset called “Sentiment140”, which is composed of tweets, as we
 
 CSV file format, which we will then preprocess by extracting the data and formatting it appropriately (very similar to our NLP homework assignments). 
 
-### Methodology: 
+## Methodology: 
 What is the architecture of your model?
 
 Recurrent Neural Networks (RNNs), which are ideal for dealing with sequential information such as text, are an interesting deep learning architecture to implement for this project. Particularly, when it comes to sentiment analysis, we want to use an RNN type architecture instead of a “traditional” feed-forward network because we are looking to learn the meaning/sentiment of a piece of text, in which case we must be able to keep track of phrase structure, and the order of the words. However, we are thinking of using a Long Short-Term Memory (LSTM) network, which is technically a special kind of RNN, but that would allow for us to store memory in an additional way, using cell states, in addition to the hidden states. This feature also helps enable LSTMs to deal with much longer sequences than RNNs. Since tweets are a maximum of 280 character, we think the difference wouldn’t be incredibly large, but believe an LSTM based model will be slightly more accurate. 
