@@ -1,4 +1,4 @@
-# What’s the vibe? Twitter Sentiment Analysis Final Project
+# What’s the vibe? Twitter Sentiment Analysis
 
 ## Who: 
 
