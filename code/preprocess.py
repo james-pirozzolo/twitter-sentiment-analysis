@@ -38,9 +38,6 @@ def get_data(train_file, test_file):
     : param test_file: Path to the test file.
     : return: Tuple of train(1-d list or array with training words in vectorized/id form), test(1-d list or array with testing words in vectorized/id form), vocabulary(Dict containg index -> word mapping)
     """
-    # TODO: load and concatenate training data from training file.
-    # TODO: read in and tokenize training data
-
     vocab_dict = {}
     id = 0
 
@@ -76,10 +73,6 @@ def get_data(train_file, test_file):
             test_lst.append((clean_tweet(row[5]), int(row[0])))
     print('finished preprocess for testing data')
 
-    # # TODO: return tuple of training tokens, testing tokens, and the vocab dictionary.
-    # vocab_dictionary = {w: i for i, w in enumerate(list(words_in_train))}
-    # training_tokens = [vocab_dictionary.get(word) for word in train_data]
-    # testing_tokens = [vocab_dictionary.get(word) for word in test_data]
     training_tokens = [(tokenize_tweet(tweet, vocab_dict), sentiment)
                        for tweet, sentiment in train_lst]
     testing_tokens = [(tokenize_tweet(tweet, vocab_dict), sentiment)
