@@ -38,7 +38,7 @@ class Model(tf.keras.Model):
         """
         ...
 
-        :param inputs: 
+        :param inputs: batch of tweets of shape (batch_size, tweet_size)
         :param initial_state: 2-d array of shape (batch_size, rnn_size) as a tensor
         :return: the batch element probabilities as a tensor, a final_state (Note 1: If you use an LSTM, the final_state will be the last two RNN outputs, 
         Note 2: We only need to use the initial state during generation)
@@ -53,7 +53,7 @@ class Model(tf.keras.Model):
         # apply the dense layer to get logits ((X*W)+b)
         logits = self.dense(outputs)
         # activation function to obtain probabilities 
-        probabilites = tf.nn.softmax(logits)
+        probabilites = tf.convert_to_tesnor(tf.nn.softmax(logits))
 
         return probabilites, (state_1, state_2)
     
@@ -61,23 +61,52 @@ class Model(tf.keras.Model):
         """
         Calculates average cross entropy sequence to sequence loss of the prediction
 
-        :param logits: a matrix of shape (batch_size, window_size, vocab_size) as a tensor
-        :param labels: matrix of shape (batch_size, window_size) containing the labels
+        :param probs: a matrix of shape (batch_size, tweet_size, vocab_size) as a tensor
+        :param labels: matrix of shape (batch_size, tweet_size) containing the labels
         :return: the loss of the model as a tensor of size 1
         """
-        # loss = tf.keras.losses.sparse_categorical_crossentropy(
-        #     labels, probs)
-        # return tf.reduce_mean(loss)
+        loss = tf.keras.losses.sparse_categorical_crossentropy(labels, probs)
+        return tf.reduce_mean(loss)
+
+    def accuracy(self, probs, labels):
+        """
+        Calculates the accuracy in testing a sequence of tweets through our model
+
+        :param probs: probabilities matrix of shape (batch_size, tweet_size) ?
+        :param labels: labels matrix of shape (batch_size, tweet_size)
+        :return: accuracy of the prediction on the batch of tweets
+        """
+        decoded_symbols = tf.argmax(input=probs, axis=1)
+        accuracy = tf.reduce_mean(tf.equal(decoded_symbols, labels))
+        return accuracy
 
 def train(model, train_inputs, train_labels):
     """
     Runs through one epoch - all training examples.
 
     :param model: the initilized model to use for forward and backward pass
-    :param train_inputs: train inputs (all inputs for training) of shape (num_inputs,)
-    :param train_labels: train labels (all labels for training) of shape (num_labels,)
+    :param train_inputs: train inputs (all inputs for training) of shape (num_inputs, tweet_size)
+    :param train_labels: train labels (all labels for training) of shape (num_labels, tweet_size)
     :return: None
     """
+    i = 0
+    # have to think about how our data is set up here: our tweet lengths are inconsistent.  
+    while (i+model.batch_size - 1) < len(train_inputs):
+        # batching inputs and labels
+        ibatch = train_inputs[i : i+model.batch_size]
+        lbatch = train_labels[i : i+model.batch_size]
+        with tf.GradientTape() as tape:
+            # forward pass, returning probabilities
+            probs = model.call(ibatch, initial_state=None)
+            # computing loss
+            loss = model.loss(probs, lbatch)
+        # updating gradients
+        gradients = tape.gradient(loss, model.trainable_variables)
+        model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+        # incrementing counter
+        i += model.batch_size
+    return None   
+    
     # # TODO: Fill in
     # window_inputs = []
     # window_labels = []
@@ -116,6 +145,34 @@ def test(model, test_inputs, test_labels):
     :param test_labels: train labels (all labels for testing) of shape (num_labels,)
     :returns: perplexity of the test set
     """
+    total_loss = 0
+    total_acc = 0
+    num_batches = 0
+    i = 0
+    print("test length" + str(len(test_inputs)))
+    # have to think about how our data is set up here: our tweet lengths are inconsistent.  
+    while (i+model.batch_size - 1) < len(test_inputs):
+        print("hi")
+        # batching inputs and labels
+        ibatch = test_inputs[i : i+model.batch_size]
+        lbatch = test_labels[i : i+model.batch_size]
+        # forward pass, returning probabilities
+        probs = model.call(ibatch, initial_state=None)
+        # computing loss 
+        loss = model.loss(probs, lbatch)
+        total_loss += loss
+        # computing accuracy
+        acc = model.accuracy(probs, lbatch)
+        total_acc += acc
+        #incrementing counters
+        num_batches += 1
+        i += model.batch_size
+    # computing average accuracy and loss 
+    print(num_batches)
+    avg_acc = total_acc/num_batches
+    avg_loss = total_loss/num_batches
+    return avg_acc, avg_loss
+
     # TODO: Fill in
     # NOTE: Ensure a correct perplexity formula (different from raw loss)
     # window_inputs = []
@@ -151,21 +208,28 @@ def main():
     # TO-DO: Pre-process and vectorize the data
     train_data, test_data, vocab_dict = get_data(
         '../data/train.csv', '../data/test.csv')
-
+    print(test_data)
     # TO-DO:  Separate your train and test data into inputs and labels
-    train_inputs = train_data[0]
-    train_labels = train_data[1]
+    train_inputs = np.asarray([inputs for inputs,_ in train_data])
+    train_labels = np.asarray([labels for _,labels in train_data])
 
-    test_inputs = test_data[0]
-    test_labels = test_data[1]
+    test_inputs = np.asarray([inputs for inputs,_ in test_data])
+    test_labels = np.asarray([labels for _,labels in train_data])
+    print(test_labels)
+    # print("test inputs: \n" + str(test_inputs))
+    # print(type(test_inputs))
+    # test_inputs = np.array(test_inputs)
+    # print("test inputs: \n" + str(test_inputs))
+    # print(type(test_inputs))
+    
     # TODO: initialize model and tensorflow variables
     model = Model(len(vocab_dict))
 
     # TODO: Set-up the training step
-    # train(model, train_inputs, train_labels)
+    # train(model, np.asarray(train_inputs), np.asarray(train_labels))
 
-    # # TODO: Set up the testing steps
-    # perplexity = test(model, test_inputs, test_labels)
+    # TODO: Set up the testing steps
+    # accuracy, loss = test(model, np.asarray(test_inputs), np.asarray(test_labels))
 
     # Print out perplexity
     # print(perplexity)

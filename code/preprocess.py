@@ -76,13 +76,11 @@ def get_data(train_file, test_file):
                     id += 1
             test_lst.append((clean_tweet(row[5]), int(row[0])))
     print('finished preprocess for testing data')
-    print(len(vocab_dict))
     training_tokens = [(tokenize_tweet(tweet, vocab_dict), sentiment)
                        for tweet, sentiment in train_lst]
     testing_tokens = [(tokenize_tweet(tweet, vocab_dict), sentiment)
                       for tweet, sentiment in test_lst]
     return training_tokens, testing_tokens, vocab_dict
-
 
 def main():
     # takes a little under 1 minute to run
