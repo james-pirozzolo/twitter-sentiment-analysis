@@ -7,6 +7,57 @@ import re
 import time
 
 
+##########DO NOT CHANGE#####################
+PAD_TOKEN = "*PAD*"
+STOP_TOKEN = "*STOP*"
+START_TOKEN = "*START*"
+UNK_TOKEN = "*UNK*"
+# max length in train is ~40
+WINDOW_SIZE = 50
+# WINDOW_SIZE = 140 (the max )
+##########DO NOT CHANGE#####################
+
+def read_data(file, vocab_dict, next_word_id, num_lines=None):
+    """
+    Reads in data from a file and returns a list of tweets and sentiments
+    :param file: a string path to the file
+    :param vocab_dict a dictionary that assigns ids to words
+    :return: a tuple of a 2d array of # tweets x tweet array 
+    and the sentiment for each tweet (in an array)
+    """
+    # a list of (tweets, sentiment)
+    tweets = []
+    sentiments = []
+    with open(file, 'r', encoding='ISO-8859-1') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            # tweet (in list form, sentiment)
+            tweet_arr = clean_tweet(row[5])
+            # add to vocab dict
+            for word in set(tweet_arr):
+                if word not in vocab_dict.keys():
+                    vocab_dict[word] = next_word_id
+                    next_word_id += 1
+            tweets.append(clean_tweet(row[5]))
+            sentiments.append(int(row[0]))
+    return tweets, sentiments, next_word_id
+
+def pad_corpus(raw_tweets):
+    """
+    arguments are lists of tweets. Returns padded tweets The
+    text is given an initial "*STOP*".  All sentences are padded with "*STOP*" at
+    the end.
+
+    :param raw_tweets: list of tweets
+    :return: list of padded tweets
+    """
+    TWEETS_padded = []
+    for line in raw_tweets:
+        padded_TWEET = line[:WINDOW_SIZE]
+        padded_TWEET += [STOP_TOKEN] + [PAD_TOKEN] * (WINDOW_SIZE - len(padded_TWEET)-1)
+        TWEETS_padded.append(padded_TWEET)
+    return TWEETS_padded
+
 def clean_tweet(tweet):
     """
     Take a tweet (string) as input and return a parsed, stemmed version of it
@@ -22,15 +73,14 @@ def clean_tweet(tweet):
     # split on whitespace, make each word lowercase
     return tweet.lower().split()
 
-
-def tokenize_tweet(tweet_arr, vocab_dict):
+def convert_to_id(tweets, vocab_dict):
     """
-    simple helper method, converts a list of words to their respective ids
-    :param tweet: an array of each cleaned word in a tweet
+    simple helper method, converts a list of tweet arrays to their respective ids
+    :param tweets: a list of padded tweet arrays of each cleaned word in a tweet
     :param vocab_dict: a word -> id dictionary
-    :return: the tokenized array
+    :return: the corresponding np id array 
     """
-    return [vocab_dict[word] for word in tweet_arr]
+    return np.stack([[vocab_dict[word] for word in tweet] for tweet in tweets])
 
 
 def get_data(train_file, test_file):
@@ -43,49 +93,30 @@ def get_data(train_file, test_file):
     : return: Tuple of train(1-d list or array with training words in vectorized/id form), test(1-d list or array with testing words in vectorized/id form), vocabulary(Dict containg index -> word mapping)
     """
     vocab_dict = {}
-    id = 0
+    vocab_dict[PAD_TOKEN] = 0
+    vocab_dict[START_TOKEN] = 1
+    vocab_dict[STOP_TOKEN] = 2
+    vocab_dict[UNK_TOKEN] = 3
+    word_id = 4
+    print('download and clean training data...')
+    train_raw_tweets, train_sentiments, word_id = read_data(train_file, vocab_dict, word_id)
+    print('download and clean testing data...')
+    test_raw_tweets, test_sentiments, word_id = read_data(train_file, vocab_dict, word_id)
+    print('padding data...')
+    train_tweet_pad = pad_corpus(train_raw_tweets)
+    test_tweet_pad = pad_corpus(test_raw_tweets)
+    print('vectorizing data...')
+    train_tweets = convert_to_id(train_tweet_pad, vocab_dict)
+    test_tweets = convert_to_id(test_tweet_pad, vocab_dict)
 
-    print('beginning preprocess for training data...')
-    # a list of (tweets, sentiment)
-    train_lst = []
-    with open(train_file, 'r', encoding='ISO-8859-1') as csvfile:
-        train_reader = csv.reader(csvfile)
-        for row in train_reader:
-            # tweet (in list form, sentiment)
-            tweet_arr = clean_tweet(row[5])
-            # add to vocab dict
-            for word in set(tweet_arr):
-                if word not in vocab_dict.keys():
-                    vocab_dict[word] = id
-                    id += 1
-            train_lst.append((clean_tweet(row[5]), int(row[0])))
-    print('finished preprocess for training data')
-
-    print('beginning preprocess for testing data...')
-    # a list of (tweets, sentiment)
-    test_lst = []
-    with open(test_file, 'r', encoding='ISO-8859-1') as csvfile:
-        test_reader = csv.reader(csvfile)
-        for row in test_reader:
-            # tweet (in list form, sentiment)
-            tweet_arr = clean_tweet(row[5])
-            # add to voacb dict
-            for word in set(tweet_arr):
-                if word not in vocab_dict.keys():
-                    vocab_dict[word] = id
-                    id += 1
-            test_lst.append((clean_tweet(row[5]), int(row[0])))
-    print('finished preprocess for testing data')
-    training_tokens = [(tokenize_tweet(tweet, vocab_dict), sentiment)
-                       for tweet, sentiment in train_lst]
-    testing_tokens = [(tokenize_tweet(tweet, vocab_dict), sentiment)
-                      for tweet, sentiment in test_lst]
-    return training_tokens, testing_tokens, vocab_dict
+    return train_tweets, np.array(train_sentiments), test_tweets, np.array(test_sentiments), vocab_dict
 
 def main():
     # takes a little under 1 minute to run
     start = time.time()
-    get_data("../data/train.csv", "../data/test.csv")
+    # get_data("../data/test.csv", "../data/test.csv")
+    get_data("../data/train_mini.csv", "../data/test.csv")
+    # get_data("../data/train.csv", "../data/test.csv")
     end = time.time()
     print(f'took {end - start} seconds to run')
 
