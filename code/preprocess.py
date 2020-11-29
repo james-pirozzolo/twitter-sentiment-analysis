@@ -14,7 +14,7 @@ def clean_tweet(tweet):
     :return: an array of each cleaned word in the string
     """
     # removing @mentions
-    tweet = re.sub('@[A-Za-z0-9]+', '', tweet)
+    tweet = re.sub('@\S+', '', tweet)
     # remove hyperlinks
     tweet = re.sub('https?:\/\/\S+', '', tweet)
     # remove punctuation
