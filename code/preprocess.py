@@ -13,10 +13,14 @@ def clean_tweet(tweet):
     :param tweet: a string representing a tweet
     :return: an array of each cleaned word in the string
     """
+    # removing @mentions
+    tweet = re.sub('@\S+', '', tweet)
+    # remove hyperlinks
+    tweet = re.sub('https?:\/\/\S+', '', tweet)
     # remove punctuation
-    no_punc_tweet = re.sub(r'[^\w\s]', '', tweet).lower()
+    tweet = re.sub(r'[^\w\s]', '', tweet)
     # split on whitespace, make each word lowercase
-    return no_punc_tweet.split()
+    return tweet.lower().split()
 
 
 def tokenize_tweet(tweet_arr, vocab_dict):
@@ -72,7 +76,7 @@ def get_data(train_file, test_file):
                     id += 1
             test_lst.append((clean_tweet(row[5]), int(row[0])))
     print('finished preprocess for testing data')
-
+    print(len(vocab_dict))
     training_tokens = [(tokenize_tweet(tweet, vocab_dict), sentiment)
                        for tweet, sentiment in train_lst]
     testing_tokens = [(tokenize_tweet(tweet, vocab_dict), sentiment)
