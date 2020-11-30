@@ -36,7 +36,7 @@ We found an interesting article that discusses a similar concept relating to sen
 
 ### The dataset: 
 
-We found a dataset called “Sentiment140”, which is composed of tweets, as well as fields for the ID, sentiment label, date and time, author, and text of each tweet. We feel that this dataset is incredibly valuable and pertinent to our topic, and labels each Tweet in the database on a 0-4 scale for how favorable/unfavorable it is. Another option would be to build the dataset ourselves by loading tweets directly from the internet.
+We found a dataset called “Sentiment140”, which is composed of 1.6 million tweets, as well as fields for the ID, sentiment label, date and time, author, and text of each tweet. We feel that this dataset is incredibly valuable and pertinent to our topic, and labels each Tweet in the database on a 0-4 scale for how favorable/unfavorable it is. Another option would be to build the dataset ourselves by loading tweets directly from the internet.
 ### Accessing it: 
 
 CSV file format, which we will then preprocess by extracting the data and formatting it appropriately (very similar to our NLP homework assignments). It contains 1.6 million Tweets and is approximately 8mb. Given the standard format of the csv file, preprocessing should be fairly straightforward.
