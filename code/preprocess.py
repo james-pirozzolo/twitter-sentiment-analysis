@@ -47,7 +47,6 @@ def pad_corpus(raw_tweets):
     arguments are lists of tweets. Returns padded tweets The
     text is given an initial "*STOP*".  All sentences are padded with "*STOP*" at
     the end.
-
     :param raw_tweets: list of tweets
     :return: list of padded tweets
     """
