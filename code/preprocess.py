@@ -10,6 +10,7 @@ import time
 ##########DO NOT CHANGE#####################
 PAD_TOKEN = "*PAD*"
 STOP_TOKEN = "*STOP*"
+UNK_TOKEN = "*UNK*"
 # max length in train is ~40
 WINDOW_SIZE = 50
 # WINDOW_SIZE = 140 (the max )
@@ -77,7 +78,7 @@ def convert_to_id(tweets, vocab_dict):
     :param vocab_dict: a word -> id dictionary
     :return: the corresponding np id array 
     """
-    return np.stack([[vocab_dict[word] for word in tweet] for tweet in tweets])
+    return np.stack([[vocab_dict[word] if word in vocab_dict.keys() else vocab_dict[UNK_TOKEN] for word in tweet] for tweet in tweets])
 
 
 def get_data(train_file, test_file):
@@ -92,7 +93,8 @@ def get_data(train_file, test_file):
     vocab_dict = {}
     vocab_dict[PAD_TOKEN] = 0
     vocab_dict[STOP_TOKEN] = 1
-    word_id = 2
+    vocab_dict[UNK_TOKEN] = 2
+    word_id = 3
     print('download and clean training data...')
     train_raw_tweets, train_sentiments, word_id = read_data(train_file, vocab_dict, word_id)
     print('download and clean testing data...')

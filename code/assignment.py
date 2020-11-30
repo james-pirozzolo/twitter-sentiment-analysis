@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow.keras import Model
-from preprocess import get_data
+from preprocess import get_data, pad_corpus, convert_to_id, clean_tweet
 
 class Model(tf.keras.Model):
     def __init__(self, vocab_size):
@@ -149,11 +149,26 @@ def test(model, test_inputs, test_labels):
     avg_loss = total_loss/num_batches
     return avg_acc, avg_loss
 
+def repl(model, vocab):
+    print("welcome to the interactive repl!")
+    print("Please input tweets to find out their sentiment!")
+    print("type :exit to quit out")
+    while True:
+        raw_tweet = input ("> ")
+        if raw_tweet == ':exit':
+            break
+        # going to need to preprocess 'tweet'
+        cleaned_tweet = clean_tweet(raw_tweet)
+        padded_tweet = pad_corpus([cleaned_tweet])
+        tweet = convert_to_id(padded_tweet, vocab)
+        probs, _ = model.call(tweet, initial_state=None)
+
+        print(probs)
+
 def main():
     # Pre-process the data
     train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
         '../data/first_50k.csv', '../data/test.csv')
-
     # Initialize the model and tensorflow variables 
     model = Model(len(vocab_dict))
 
@@ -165,6 +180,8 @@ def main():
 
     # print the accuracy!! 
     print(f'Accuracy is {accuracy.numpy()}!')
+
+    repl(model,vocab_dict)
 
 if __name__ == '__main__':
     main()
