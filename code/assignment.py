@@ -52,7 +52,6 @@ class Model(tf.keras.Model):
         # apply the dense layers to get probabilities
         dense_1_out = self.dense_1(outputs)
         probabilities = self.dense_2(dense_1_out)
-
         return probabilities, (state_1, state_2)
     
     def loss(self, probs, labels):
@@ -162,7 +161,7 @@ def main():
     train(model, train_inputs, train_labels)
 
     # Test the model on the test data
-    accuracy, loss = test(model, test_inputs, test_labels)
+    accuracy, _ = test(model, test_inputs, test_labels)
 
     # print the accuracy!! 
     print(f'Accuracy is {accuracy.numpy()}!')

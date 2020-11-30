@@ -10,8 +10,6 @@ import time
 ##########DO NOT CHANGE#####################
 PAD_TOKEN = "*PAD*"
 STOP_TOKEN = "*STOP*"
-START_TOKEN = "*START*"
-UNK_TOKEN = "*UNK*"
 # max length in train is ~40
 WINDOW_SIZE = 50
 # WINDOW_SIZE = 140 (the max )
@@ -93,10 +91,8 @@ def get_data(train_file, test_file):
     """
     vocab_dict = {}
     vocab_dict[PAD_TOKEN] = 0
-    vocab_dict[START_TOKEN] = 1
-    vocab_dict[STOP_TOKEN] = 2
-    vocab_dict[UNK_TOKEN] = 3
-    word_id = 4
+    vocab_dict[STOP_TOKEN] = 1
+    word_id = 2
     print('download and clean training data...')
     train_raw_tweets, train_sentiments, word_id = read_data(train_file, vocab_dict, word_id)
     print('download and clean testing data...')
@@ -111,11 +107,9 @@ def get_data(train_file, test_file):
     return train_tweets, np.array(train_sentiments), test_tweets, np.array(test_sentiments), vocab_dict
 
 def main():
-    # takes a little under 1 minute to run
+    # takes ~4 seconds to run on dataset of 50k
     start = time.time()
-    # get_data("../data/test.csv", "../data/test.csv")
     get_data("../data/train_mini.csv", "../data/test.csv")
-    # get_data("../data/train.csv", "../data/test.csv")
     end = time.time()
     print(f'took {end - start} seconds to run')
 
