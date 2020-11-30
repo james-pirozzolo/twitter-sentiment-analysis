@@ -11,4 +11,9 @@ mkdir data
 mv testdata.manual.2009.06.14.csv data/test.csv
 mv training.1600000.processed.noemoticon.csv data/train.csv
 
+# make a "mini" training file
+# shuffle lines of data and get first 50k lines of data
+shuf data/train.csv | head -50000 > data/train_mini.csv
+
 echo downloaded data
+
