@@ -14,7 +14,6 @@ class Model(tf.keras.Model):
 
         # TODO: initialize vocab_size, emnbedding_size
         self.vocab_size = vocab_size
-        # self.window_size = 20 
         self.embedding_size = 300
         self.learning_rate = 0.001
         self.batch_size = 250 
@@ -24,19 +23,13 @@ class Model(tf.keras.Model):
         self.units = 150
 
         # TODO: initialize embeddings and forward pass weights (weights, biases)
-        self.optimizer = tf.keras.optimizers.Adam(
-            learning_rate=self.learning_rate)
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
         self.embedding_matrix = tf.keras.layers.Embedding(self.vocab_size, self.embedding_size, mask_zero=True)
         self.lstm = tf.keras.layers.LSTM(self.units, return_sequences=True, return_state=True)
-        self.dense_1 = tf.keras.layers.Dense(self.num_classes, activation='relu') # check this 
-        self.dense_2 = tf.keras.layers.Dense(self.num_classes, activation='softmax') # check this 
-        
-        # JUJU begin
-        # might want to use Weights matrix and matmul 
-        # self.W = tf.Variable(tf.random.truncated_normal([self.units, self.units], stddev=.1))
-        # self.dense_2 = tf.keras.layers.Dense(vocab_size)
-        # JUJU end
+        self.dense_1 = tf.keras.layers.Dense(self.num_classes, activation='relu')
+        self.dense_2 = tf.keras.layers.Dense(self.num_classes, activation='softmax')
+
     
     def call(self, inputs, initial_state):
         """
@@ -54,22 +47,10 @@ class Model(tf.keras.Model):
         lstm_out, state_1, state_2 = self.lstm(embedding) # shape lstm_out (batch_size, tweet_size, units)
         # because we want to average all vectors to determine sentiment, we reduce_mean on the lstm output
         outputs = tf.reduce_mean(lstm_out, axis=1) # shape outputs (batch_size, units)
-        # apply the dense layer to get logits ((X*W)+b)
-        # JUJU begin
-        # logits = self.dense(outputs)
-        # JUJU out
         dense_1_out = self.dense_1(outputs)
         probabilities = self.dense_2(dense_1_out)
-        
-        # JUJU begin
-        # activation function to obtain probabilities 
-        # probabilites = tf.convert_to_tensor(tf.nn.softmax(logits))
-
-        # return logits, probabilities, (state_1, state_2)
-        # JUJU out
-        return dense_1_out, probabilities, (state_1, state_2)
+        return probabilities, (state_1, state_2)
     
-    # def loss(self, logits, labels):
     def loss(self, probs, labels):
         """
         Calculates average cross entropy sequence to sequence loss of the prediction
@@ -79,9 +60,6 @@ class Model(tf.keras.Model):
         :return: the loss of the model as a tensor of size 1
         """
         loss = tf.keras.losses.sparse_categorical_crossentropy(labels, probs)
-        # JUJU begin
-        # loss = tf.keras.losses.sparse_categorical_crossentropy(labels, logits)
-        # JUJU out
         return tf.reduce_mean(loss)
 
     def accuracy(self, probs, labels, print_outputs=False):
@@ -120,7 +98,6 @@ def train(model, train_inputs, train_labels):
     # train_labels = tf.gather(train_labels, indices)
     num_rows = 50000
 
-    # have to think about how our data is set up here: our tweet lengths are inconsistent.  
     while (i+model.batch_size) < num_rows:
         print("Training batch: " + str(num_batch))
         # batching inputs and labels 
@@ -128,14 +105,12 @@ def train(model, train_inputs, train_labels):
         lbatch = train_labels[i: i+model.batch_size]  # shape (batch_size)   
         with tf.GradientTape() as tape:
             # forward pass, returning probabilities
-            logits, probs, _ = model.call(ibatch, initial_state=None)
+            probs, _ = model.call(ibatch, initial_state=None)
             # computing loss
-            # loss = model.loss(logits, lbatch)
             loss = model.loss(probs, lbatch)
         # updating gradients
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-        # incrementing counter
         i += model.batch_size
         num_batch += 1
     return None   
@@ -160,10 +135,9 @@ def test(model, test_inputs, test_labels):
         ibatch = test_inputs[i: i+model.batch_size]
         lbatch = test_labels[i: i+model.batch_size]
         # forward pass, returning probabilities
-        logits, probs, _ = model.call(ibatch, initial_state=None)
+        probs, _ = model.call(ibatch, initial_state=None)
         # computing loss 
         loss = model.loss(probs, lbatch)
-        # loss = model.loss(logits, lbatch)
         total_loss += loss
         # computing accuracy
         if i == 0:
@@ -191,7 +165,7 @@ def main():
     train(model, train_inputs, train_labels)
 
     # TODO: Set up the testing steps
-    accuracy, loss = test(model, test_inputs, test_labels)
+    accuracy, _ = test(model, test_inputs, test_labels)
 
     # print the accuracy!! 
     print(f'Accuracy is {accuracy.numpy()}!')
