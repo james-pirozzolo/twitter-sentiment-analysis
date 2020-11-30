@@ -29,11 +29,14 @@ class Model(tf.keras.Model):
 
         self.embedding_matrix = tf.keras.layers.Embedding(self.vocab_size, self.embedding_size, mask_zero=True)
         self.lstm = tf.keras.layers.LSTM(self.units, return_sequences=True, return_state=True)
-        self.dense = tf.keras.layers.Dense(self.num_classes) # check this 
+        self.dense_1 = tf.keras.layers.Dense(self.num_classes, activation='relu') # check this 
+        self.dense_2 = tf.keras.layers.Dense(self.num_classes, activation='softmax') # check this 
         
+        # JUJU begin
         # might want to use Weights matrix and matmul 
         # self.W = tf.Variable(tf.random.truncated_normal([self.units, self.units], stddev=.1))
         # self.dense_2 = tf.keras.layers.Dense(vocab_size)
+        # JUJU end
     
     def call(self, inputs, initial_state):
         """
@@ -52,13 +55,22 @@ class Model(tf.keras.Model):
         # because we want to average all vectors to determine sentiment, we reduce_mean on the lstm output
         outputs = tf.reduce_mean(lstm_out, axis=1) # shape outputs (batch_size, units)
         # apply the dense layer to get logits ((X*W)+b)
-        logits = self.dense(outputs)
+        # JUJU begin
+        # logits = self.dense(outputs)
+        # JUJU out
+        dense_1_out = self.dense_1(outputs)
+        probabilities = self.dense_2(dense_1_out)
+        
+        # JUJU begin
         # activation function to obtain probabilities 
-        probabilites = tf.convert_to_tensor(tf.nn.softmax(logits))
+        # probabilites = tf.convert_to_tensor(tf.nn.softmax(logits))
 
-        return logits, probabilites, (state_1, state_2)
+        # return logits, probabilities, (state_1, state_2)
+        # JUJU out
+        return dense_1_out, probabilities, (state_1, state_2)
     
-    def loss(self, logits, labels):
+    # def loss(self, logits, labels):
+    def loss(self, probs, labels):
         """
         Calculates average cross entropy sequence to sequence loss of the prediction
 
@@ -66,7 +78,10 @@ class Model(tf.keras.Model):
         :param labels: matrix of shape (batch_size, tweet_size) containing the labels
         :return: the loss of the model as a tensor of size 1
         """
-        loss = tf.keras.losses.sparse_categorical_crossentropy(labels, logits)
+        loss = tf.keras.losses.sparse_categorical_crossentropy(labels, probs)
+        # JUJU begin
+        # loss = tf.keras.losses.sparse_categorical_crossentropy(labels, logits)
+        # JUJU out
         return tf.reduce_mean(loss)
 
     def accuracy(self, probs, labels, print_outputs=False):
@@ -115,7 +130,8 @@ def train(model, train_inputs, train_labels):
             # forward pass, returning probabilities
             logits, probs, _ = model.call(ibatch, initial_state=None)
             # computing loss
-            loss = model.loss(logits, lbatch)
+            # loss = model.loss(logits, lbatch)
+            loss = model.loss(probs, lbatch)
         # updating gradients
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
@@ -146,7 +162,8 @@ def test(model, test_inputs, test_labels):
         # forward pass, returning probabilities
         logits, probs, _ = model.call(ibatch, initial_state=None)
         # computing loss 
-        loss = model.loss(logits, lbatch)
+        loss = model.loss(probs, lbatch)
+        # loss = model.loss(logits, lbatch)
         total_loss += loss
         # computing accuracy
         if i == 0:
@@ -165,9 +182,7 @@ def test(model, test_inputs, test_labels):
 def main():
     # TO-DO: Pre-process and vectorize the data
     train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
-        '../data/first_50k.csv', '../data/test.csv')
-    # train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
-    #     '../data/train_mini.csv', '../data/test.csv')
+        '../data/train_mini.csv', '../data/test.csv')
 
     # TODO: initialize model and tensorflow variables
     model = Model(len(vocab_dict))
@@ -178,8 +193,8 @@ def main():
     # TODO: Set up the testing steps
     accuracy, loss = test(model, test_inputs, test_labels)
 
-    # print the ducking accuracy!! 
-    print(accuracy)
+    # print the accuracy!! 
+    print(f'Accuracy is {accuracy.numpy()}!')
 
 if __name__ == '__main__':
     main()
