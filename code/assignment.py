@@ -16,10 +16,10 @@ class Model(tf.keras.Model):
         self.vocab_size = vocab_size
         # self.window_size = 20 
         self.embedding_size = 300
-        self.learning_rate = 0.01
-        self.batch_size = 500 
+        self.learning_rate = 0.001
+        self.batch_size = 250 
         # number of output classes 
-        self.num_classes = 5 
+        self.num_classes = 2
         # LSTM units 
         self.units = 150
 
@@ -69,7 +69,7 @@ class Model(tf.keras.Model):
         loss = tf.keras.losses.sparse_categorical_crossentropy(labels, logits)
         return tf.reduce_mean(loss)
 
-    def accuracy(self, probs, labels):
+    def accuracy(self, probs, labels, print_outputs=False):
         """
         Calculates the accuracy in testing a sequence of tweets through our model
 
@@ -77,15 +77,12 @@ class Model(tf.keras.Model):
         :param labels: labels matrix of shape (batch_size, tweet_size)
         :return: accuracy of the prediction on the batch of tweets
         """
-        # decoded_symbols = tf.argmax(input=prbs, axis=2)
-		# accuracy = tf.reduce_mean(tf.boolean_mask(tf.cast(tf.equal(decoded_symbols, labels), dtype=tf.float32),mask))
-		# return accuracy
-
         decoded_symbols = tf.argmax(input=probs, axis=1)
-        print("probabilities: \n")
-        print(probs)
-        print("LABELS")
-        print(labels)
+        if print_outputs:
+            print("probabilities: \n")
+            print(probs)
+            print("LABELS")
+            print(labels)
         accuracy = tf.reduce_mean(tf.cast(tf.equal(decoded_symbols, labels), dtype=tf.float32))
         return accuracy
 
@@ -101,14 +98,15 @@ def train(model, train_inputs, train_labels):
     i = 0
     num_batch = 1
 
-    # suffle our train data
-    rows, columns = tf.shape(train_inputs)
-    indices = tf.random.shuffle(np.arange(rows))
-    train_inputs = tf.gather(train_inputs, indices) 
-    train_labels = tf.gather(train_labels, indices)
+    # # suffle our train data
+    # rows, columns = tf.shape(train_inputs)
+    # indices = tf.random.shuffle(np.arange(rows))
+    # train_inputs = tf.gather(train_inputs, indices) 
+    # train_labels = tf.gather(train_labels, indices)
+    num_rows = 50000
 
     # have to think about how our data is set up here: our tweet lengths are inconsistent.  
-    while (i+model.batch_size - 1) < len(train_inputs):
+    while (i+model.batch_size) < num_rows:
         print("Training batch: " + str(num_batch))
         # batching inputs and labels 
         ibatch = train_inputs[i: i+model.batch_size] # ibatch shape: (batch_size, max_length=50)
@@ -140,7 +138,7 @@ def test(model, test_inputs, test_labels):
     num_batches = 0
     i = 0
     # have to think about how our data is set up here: our tweet lengths are inconsistent.  
-    while (i+model.batch_size - 1) < len(test_inputs):
+    while (i+model.batch_size) < len(test_inputs):
         print("Testing batch: " + str(num_batches + 1))
         # batching inputs and labels
         ibatch = test_inputs[i: i+model.batch_size]
@@ -151,8 +149,10 @@ def test(model, test_inputs, test_labels):
         loss = model.loss(logits, lbatch)
         total_loss += loss
         # computing accuracy
-        acc = model.accuracy(probs, lbatch)
-        print("accuracy: " + str(acc))
+        if i == 0:
+            acc = model.accuracy(probs, lbatch, True)
+        else:
+            acc = model.accuracy(probs, lbatch)
         total_acc += acc
         #incrementing counters
         num_batches += 1
@@ -165,7 +165,7 @@ def test(model, test_inputs, test_labels):
 def main():
     # TO-DO: Pre-process and vectorize the data
     train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
-        '../data/train.csv', '../data/test.csv')
+        '../data/first_50k.csv', '../data/test.csv')
     # train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
     #     '../data/train_mini.csv', '../data/test.csv')
 

@@ -39,7 +39,7 @@ def read_data(file, vocab_dict, next_word_id, num_lines=None):
                     vocab_dict[word] = next_word_id
                     next_word_id += 1
             tweets.append(clean_tweet(row[5]))
-            sentiments.append(int(row[0]))
+            sentiments.append(0) if int(row[0]) <= 2 else sentiments.append(1)
     return tweets, sentiments, next_word_id
 
 def pad_corpus(raw_tweets):
