@@ -7,6 +7,10 @@ class Model(tf.keras.Model):
     def __init__(self, vocab_size):
         """
         The Model class computes the sentiment predictions for a batch of tweets 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
         :param vocab_size: The number of unique words in the data
         """
 
@@ -37,6 +41,10 @@ class Model(tf.keras.Model):
         Performs the forward pass on a batch of tweets to generate the sentiment probabilities.
         This returns a tensor of shape [batch_size, num_classes], where each row is a
         probability distribution over the sentiment for tweet.
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
         :param inputs: batch of tweets of shape (batch_size, max_length)
         :param initial_state: 2-d array of shape (batch_size, rnn_size) as a tensor  --> might want to remove this 
         :return: the batch probabilities tensor, and the last two LSTM states. 
@@ -55,6 +63,10 @@ class Model(tf.keras.Model):
     def loss(self, probs, labels):
         """
         Calculates the average loss of sentiment predictions for tweets in a given forward pass
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
         :param probs: a matrix of shape (batch_size, num_classes) as a tensor
         :param labels: matrix of shape (batch_size,) containing the labels
         :return: the loss of the model as a tensor of size 1
@@ -65,6 +77,10 @@ class Model(tf.keras.Model):
     def accuracy(self, probs, labels, print_outputs=False):
         """
         Calculates the batch accuracy of sentiment predictions
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
         :param probs: probabilities matrix of shape (batch_size, num_classes) 
         :param labels: labels matrix of shape (batch_size,)
         :return: accuracy of the prediction on the batch of tweets
@@ -81,6 +97,10 @@ class Model(tf.keras.Model):
 def train(model, train_inputs, train_labels):
     """
     Runs through all training examples and trains the model batch by batch
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
     :param model: the initilized model to use for forward and backward pass
     :param train_inputs: train inputs (all inputs for training) of shape (num_inputs, max_length)
     :param train_labels: train labels (all labels for training) of shape (num_labels,)
@@ -110,6 +130,10 @@ def train(model, train_inputs, train_labels):
 def test(model, test_inputs, test_labels):
     """
     Runs through all testing examples and tests the model batch by batch
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
     :param model: the trained model to use for prediction
     :param test_inputs: test inputs (all inputs for testing) of shape (num_inputs, max_length)
     :param test_labels: test labels (all labels for testing) of shape (num_labels,)
