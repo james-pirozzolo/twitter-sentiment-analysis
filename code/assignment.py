@@ -13,26 +13,26 @@ class Model(tf.keras.Model):
 
         super(Model, self).__init__()
 
-        # Initializing hyperparameters 
+        # Initializing hyperparameters
         self.vocab_size = vocab_size
         self.embedding_size = 300
-        self.learning_rate = 0.001
-        self.batch_size = 250 
-        # number of output classes 
+        self.learning_rate = 0.00025
+        self.batch_size = 250
+        # number of output classes
         self.num_classes = 2
-        # LSTM units 
+        # LSTM units
         self.units = 150
 
-        # Initializing Adam optimizer 
+        # Initializing Adam optimizer
         self.optimizer = tf.keras.optimizers.Adam(
-            learning_rate=self.learning_rate)
+           learning_rate=self.learning_rate)
 
         # Initializing Keras layers: embedding, LSTM, and dense layers
         self.embedding_matrix = tf.keras.layers.Embedding(self.vocab_size, self.embedding_size, mask_zero=True)
         self.lstm = tf.keras.layers.LSTM(self.units, return_sequences=True, return_state=True)
-        self.dense_1 = tf.keras.layers.Dense(self.num_classes, activation='relu')  
-        self.dense_2 = tf.keras.layers.Dense(self.num_classes, activation='softmax') 
-    
+        self.dense_1 = tf.keras.layers.Dense(self.num_classes, activation='relu')
+        self.dense_2 = tf.keras.layers.Dense(self.num_classes, activation='softmax')
+
     def call(self, inputs, initial_state):
         """
         Performs the forward pass on a batch of tweets to generate the sentiment probabilities.
@@ -168,7 +168,7 @@ def repl(model, vocab):
 def main():
     # Pre-process the data
     train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
-        '../data/train_mini.csv', '../data/test.csv')
+        '../data/train_200k.csv', '../data/test.csv')
     # Initialize the model and tensorflow variables 
     model = Model(len(vocab_dict))
 
