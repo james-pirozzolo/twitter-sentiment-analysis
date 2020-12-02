@@ -22,14 +22,14 @@ class Model(tf.keras.Model):
         # LSTM units 
         self.units = 150
         initial_learning_rate = 0.01
-        lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-            initial_learning_rate,
-            decay_steps=100000,
-            decay_rate=0.96,
-            staircase=True)
-        
-        # define network parameters and optimizer
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+        lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+            initial_learning_rate,
+            decay_steps=100000,
+            decay_rate=0.96,
+            staircase=True)
+            
+        # define network parameters and optimizer
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
         # TODO: initialize embeddings and forward pass weights (weights, biases)
         #self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
