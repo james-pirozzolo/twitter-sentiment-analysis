@@ -16,7 +16,7 @@ class Model(tf.keras.Model):
         # Initializing hyperparameters 
         self.vocab_size = vocab_size
         self.embedding_size = 300
-        self.learning_rate = 0.01
+        self.learning_rate = 0.001
         self.batch_size = 250 
         # number of output classes 
         self.num_classes = 2
@@ -168,7 +168,7 @@ def repl(model, vocab):
 def main():
     # Pre-process the data
     train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
-        '../data/first_50k.csv', '../data/test.csv')
+        '../data/train_mini.csv', '../data/test.csv')
     # Initialize the model and tensorflow variables 
     model = Model(len(vocab_dict))
 
