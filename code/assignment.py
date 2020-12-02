@@ -15,15 +15,23 @@ class Model(tf.keras.Model):
         # TODO: initialize vocab_size, emnbedding_size
         self.vocab_size = vocab_size
         self.embedding_size = 300
-        self.learning_rate = 0.01
+        #self.learning_rate = 0.01
         self.batch_size = 250 
         # number of output classes 
         self.num_classes = 2
         # LSTM units 
         self.units = 150
-
+        initial_learning_rate = 0.01
+        lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+            initial_learning_rate,
+            decay_steps=100000,
+            decay_rate=0.96,
+            staircase=True)
+        
+        # define network parameters and optimizer
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
         # TODO: initialize embeddings and forward pass weights (weights, biases)
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
+        #self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
         self.embedding_matrix = tf.keras.layers.Embedding(self.vocab_size, self.embedding_size, mask_zero=True)
         self.lstm = tf.keras.layers.LSTM(self.units, return_sequences=True, return_state=True)
@@ -93,12 +101,11 @@ def train(model, train_inputs, train_labels):
     # indices = tf.random.shuffle(np.arange(rows))
     # train_inputs = tf.gather(train_inputs, indices) 
     # train_labels = tf.gather(train_labels, indices)
-    i = 0
-    num_batch = 1
     num_epochs = 10
     for epoch in range(num_epochs):
-        print("Training Epoch: " + str(num_batch))
-        while (i+model.batch_size) < len(train_inputs):
+        print("Training Epoch: " + str(epoch))
+        num_batch = 1
+        for i in range(0, len(train_inputs), model.batch_size):
             print("Training batch: " + str(num_batch))
             # batching inputs and labels 
             ibatch = train_inputs[i: i+model.batch_size] # ibatch shape: (batch_size, max_length=50)
@@ -111,10 +118,7 @@ def train(model, train_inputs, train_labels):
             # updating gradients
             gradients = tape.gradient(loss, model.trainable_variables)
             model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-            i += model.batch_size
             num_batch += 1
-        model.learning_rate = model.learning_rate * tf.math.exp(-0.1) #reduce learning rate
-        print(model.learning_rate)
     return
 
 def test(model, test_inputs, test_labels):
