@@ -15,7 +15,7 @@ class Model(tf.keras.Model):
         # TODO: initialize vocab_size, emnbedding_size
         self.vocab_size = vocab_size
         self.embedding_size = 300
-        self.learning_rate = 0.001
+        self.learning_rate = 0.01
         self.batch_size = 250 
         # number of output classes 
         self.num_classes = 2
@@ -88,32 +88,34 @@ def train(model, train_inputs, train_labels):
     :param train_labels: train labels (all labels for training) of shape (num_labels, tweet_size)
     :return: None
     """
-    i = 0
-    num_batch = 1
-
-    # # suffle our train data
+    # # shuffle our train data
     # rows, columns = tf.shape(train_inputs)
     # indices = tf.random.shuffle(np.arange(rows))
     # train_inputs = tf.gather(train_inputs, indices) 
     # train_labels = tf.gather(train_labels, indices)
-    num_rows = 50000
-
-    while (i+model.batch_size) < num_rows:
-        print("Training batch: " + str(num_batch))
-        # batching inputs and labels 
-        ibatch = train_inputs[i: i+model.batch_size] # ibatch shape: (batch_size, max_length=50)
-        lbatch = train_labels[i: i+model.batch_size]  # shape (batch_size)   
-        with tf.GradientTape() as tape:
-            # forward pass, returning probabilities
-            probs, _ = model.call(ibatch, initial_state=None)
-            # computing loss
-            loss = model.loss(probs, lbatch)
-        # updating gradients
-        gradients = tape.gradient(loss, model.trainable_variables)
-        model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-        i += model.batch_size
-        num_batch += 1
-    return None   
+    i = 0
+    num_batch = 1
+    num_epochs = 10
+    for epoch in range(num_epochs):
+        print("Training Epoch: " + str(num_batch))
+        while (i+model.batch_size) < len(train_inputs):
+            print("Training batch: " + str(num_batch))
+            # batching inputs and labels 
+            ibatch = train_inputs[i: i+model.batch_size] # ibatch shape: (batch_size, max_length=50)
+            lbatch = train_labels[i: i+model.batch_size]  # shape (batch_size)   
+            with tf.GradientTape() as tape:
+                # forward pass, returning probabilities
+                probs, _ = model.call(ibatch, initial_state=None)
+                # computing loss
+                loss = model.loss(probs, lbatch)
+            # updating gradients
+            gradients = tape.gradient(loss, model.trainable_variables)
+            model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+            i += model.batch_size
+            num_batch += 1
+        model.learning_rate = model.learning_rate * tf.math.exp(-0.1) #reduce learning rate
+        print(model.learning_rate)
+    return
 
 def test(model, test_inputs, test_labels):
     """
@@ -166,14 +168,20 @@ def repl(model, vocab):
         tweet = convert_to_id(padded_tweet, vocab)
         probs, _ = model.call(tweet, initial_state=None)
 
+        #print out bar
+        #arr = probs.numpy()
+        #bar_length = 80
+        #positive = int(round(arr[1] * bar_length))
+        #print('[' + '='*positive + '-'*(bar_length - positive)+']')
+
         print(probs)
 
 def main():
     # TO-DO: Pre-process and vectorize the data
+    #train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
+     #   '../data/train.csv', '../data/test.csv')
     train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
-        '../data/test.csv', '../data/test.csv')
-    # train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
-    #     '../data/train_mini.csv', '../data/test.csv')
+        '../data/train_mini.csv', '../data/test.csv')
 
     # TODO: initialize model and tensorflow variables
     model = Model(len(vocab_dict))
