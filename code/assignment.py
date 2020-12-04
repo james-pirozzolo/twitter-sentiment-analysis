@@ -2,15 +2,12 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.keras import Model
 from preprocess import get_data, pad_corpus, convert_to_id, clean_tweet
+from loaded_model import Model as LoadedModel
 
 class Model(tf.keras.Model):
     def __init__(self, vocab_size):
         """
         The Model class computes the sentiment predictions for a batch of tweets 
-<<<<<<< HEAD
-=======
-
->>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
         :param vocab_size: The number of unique words in the data
         """
 
@@ -41,10 +38,6 @@ class Model(tf.keras.Model):
         Performs the forward pass on a batch of tweets to generate the sentiment probabilities.
         This returns a tensor of shape [batch_size, num_classes], where each row is a
         probability distribution over the sentiment for tweet.
-<<<<<<< HEAD
-=======
-
->>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
         :param inputs: batch of tweets of shape (batch_size, max_length)
         :param initial_state: 2-d array of shape (batch_size, rnn_size) as a tensor  --> might want to remove this 
         :return: the batch probabilities tensor, and the last two LSTM states. 
@@ -63,10 +56,6 @@ class Model(tf.keras.Model):
     def loss(self, probs, labels):
         """
         Calculates the average loss of sentiment predictions for tweets in a given forward pass
-<<<<<<< HEAD
-=======
-
->>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
         :param probs: a matrix of shape (batch_size, num_classes) as a tensor
         :param labels: matrix of shape (batch_size,) containing the labels
         :return: the loss of the model as a tensor of size 1
@@ -77,10 +66,6 @@ class Model(tf.keras.Model):
     def accuracy(self, probs, labels, print_outputs=False):
         """
         Calculates the batch accuracy of sentiment predictions
-<<<<<<< HEAD
-=======
-
->>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
         :param probs: probabilities matrix of shape (batch_size, num_classes) 
         :param labels: labels matrix of shape (batch_size,)
         :return: accuracy of the prediction on the batch of tweets
@@ -97,10 +82,6 @@ class Model(tf.keras.Model):
 def train(model, train_inputs, train_labels):
     """
     Runs through all training examples and trains the model batch by batch
-<<<<<<< HEAD
-=======
-
->>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
     :param model: the initilized model to use for forward and backward pass
     :param train_inputs: train inputs (all inputs for training) of shape (num_inputs, max_length)
     :param train_labels: train labels (all labels for training) of shape (num_labels,)
@@ -130,10 +111,6 @@ def train(model, train_inputs, train_labels):
 def test(model, test_inputs, test_labels):
     """
     Runs through all testing examples and tests the model batch by batch
-<<<<<<< HEAD
-=======
-
->>>>>>> 9e57a708c15cc48fe2414a51604bc2be7eb9405b
     :param model: the trained model to use for prediction
     :param test_inputs: test inputs (all inputs for testing) of shape (num_inputs, max_length)
     :param test_labels: test labels (all labels for testing) of shape (num_labels,)
@@ -183,13 +160,33 @@ def repl(model, vocab):
 
         print(probs)
 
+def save_model(model, vocab):
+    np.save('../saved_model/embedding.npy', model.embedding_matrix)
+    np.save('../saved_model/lstm.npy', model.lstm)
+    np.save('../saved_model/dense_1.npy', model.dense_1)
+    np.save('../saved_model/dense_2.npy', model.dense_2)
+    np.save('../saved_model/vocab.npy', vocab)
+
+def load_model():
+    embedding = np.load('../saved_model/embedding.npy', allow_pickle='TRUE').item()
+    lstm = np.load('../saved_model/lstm.npy', allow_pickle='TRUE').item()
+    dense_1 = np.load('../saved_model/dense_1.npy', allow_pickle='TRUE').item()
+    dense_2 = np.load('../saved_model/dense_2.npy', allow_pickle='TRUE').item()
+    vocab = np.load('../saved_model/vocab.npy', allow_pickle='TRUE').item()
+    return (embedding, lstm, dense_1, dense_2, vocab)
+
 def main():
     # Pre-process the data
     train_inputs, train_labels, test_inputs, test_labels, vocab_dict = get_data(
-        '../data/train_200k.csv', '../data/test.csv')
+        '../data/train_mini.csv', '../data/test.csv')
     # Initialize the model and tensorflow variables 
     model = Model(len(vocab_dict))
 
+    #testing save_model
+    save_model(model, vocab_dict)
+    embedding, lstm, dense1, dense2, _ = load_model()
+    loaded = LoadedModel(embedding, lstm, dense1, dense2, vocab_dict)
+    repl(loaded,vocab_dict)
     # Train the model on the train data 
     train(model, train_inputs, train_labels)
 
