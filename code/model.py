@@ -18,8 +18,8 @@ class Model(tf.keras.Model):
         # Initializing hyperparameters
         self.vocab_size = vocab_size
         self.embedding_size = 300
-        self.learning_rate = 0.00025
-        self.batch_size = 250
+        self.learning_rate = 0.0005
+        self.batch_size = 256
         # number of output classes
         self.num_classes = 2
         # LSTM units
@@ -67,7 +67,7 @@ class Model(tf.keras.Model):
         loss = tf.keras.losses.sparse_categorical_crossentropy(labels, probs)
         return tf.reduce_mean(loss)
 
-    def accuracy(self, probs, labels, print_outputs=False):
+    def accuracy(self, probs, labels):
         """
         Calculates the batch accuracy of sentiment predictions
 
@@ -76,11 +76,6 @@ class Model(tf.keras.Model):
         :return: accuracy of the prediction on the batch of tweets
         """
         decoded_symbols = tf.argmax(input=probs, axis=1)
-        if print_outputs:
-            print("Probabilities:")
-            print(probs)
-            print("Labels:")
-            print(labels)
         accuracy = tf.reduce_mean(tf.cast(tf.equal(decoded_symbols, labels), dtype=tf.float32))
         return accuracy
 
@@ -93,14 +88,12 @@ def train(model, train_inputs, train_labels):
     :param train_labels: train labels (all labels for training) of shape (num_labels,)
     :return: None
     """
-    i = 0
-    num_batch = 1
-    num_rows = 50000
-    while (i+model.batch_size) < num_rows:
-        print("Training batch: " + str(num_batch))
+    batch_sz = model.batch_size
+    for i in range(0, len(train_inputs), batch_sz):
+        print("Training batch: " + str(i//batch_sz))
         # batching inputs and labels 
-        ibatch = train_inputs[i: i+model.batch_size] 
-        lbatch = train_labels[i: i+model.batch_size]   
+        ibatch = train_inputs[i: i+batch_sz] 
+        lbatch = train_labels[i: i+batch_sz]   
         with tf.GradientTape() as tape:
             # forward pass, returning probabilities
             probs, _ = model.call(ibatch, initial_state=None)
@@ -109,9 +102,6 @@ def train(model, train_inputs, train_labels):
         # updating gradients
         gradients = tape.gradient(loss, model.trainable_variables)
         model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-        # incrementing counters
-        i += model.batch_size
-        num_batch += 1
     return None   
 
 def test(model, test_inputs, test_labels):
@@ -126,30 +116,33 @@ def test(model, test_inputs, test_labels):
     total_loss = 0
     total_acc = 0
     num_batches = 0
-    i = 0
-    while (i+model.batch_size) < len(test_inputs):
+    batch_sz = model.batch_size
+    for i in range(0, len(test_inputs), batch_sz):
         print("Testing batch: " + str(num_batches + 1))
         # batching inputs and labels
-        ibatch = test_inputs[i: i+model.batch_size]
-        lbatch = test_labels[i: i+model.batch_size]
+        ibatch = test_inputs[i: i+batch_sz]
+        lbatch = test_labels[i: i+batch_sz]
         # forward pass, returning probabilities
         probs, _ = model.call(ibatch, initial_state=None)
         # computing loss 
         loss = model.loss(probs, lbatch)
         total_loss += loss
         # computing accuracy
-        if i == 0:
-            acc = model.accuracy(probs, lbatch, True)
-        else:
-            acc = model.accuracy(probs, lbatch)
+        acc = model.accuracy(probs, lbatch)
         total_acc += acc
         #incrementing counters
         num_batches += 1
-        i += model.batch_size
     # computing average accuracy and loss 
     avg_acc = total_acc/num_batches
     avg_loss = total_loss/num_batches
     return avg_acc, avg_loss
+
+def save_model(model, vocab):
+    np.save('../saved_model/embedding.npy', model.embedding_matrix)
+    np.save('../saved_model/lstm.npy', model.lstm)
+    np.save('../saved_model/dense_1.npy', model.dense_1)
+    np.save('../saved_model/dense_2.npy', model.dense_2)
+    np.save('../saved_model/vocab.npy', vocab)
 
 def main():
     # Pre-process the data
@@ -162,13 +155,7 @@ def main():
     accuracy, _ = test(model, test_inputs, test_labels)
     print(f'Accuracy is {accuracy.numpy()}!')
 
-    # save model to file
-    # save vocab to file
-    model.save('../model/sentiment_model.h5')
-
-    f = open('../model/vocab.pkl', 'wb')
-    pickle.dump(vocab_dict, f)
-    f.close()
+    save_model(model, vocab_dict)
 
 if __name__ == '__main__':
     main()

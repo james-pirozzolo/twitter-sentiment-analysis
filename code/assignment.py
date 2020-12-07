@@ -10,9 +10,7 @@ class Model(tf.keras.Model):
         The Model class computes the sentiment predictions for a batch of tweets 
         :param vocab_size: The number of unique words in the data
         """
-
         super(Model, self).__init__()
-
         # Initializing hyperparameters
         self.vocab_size = vocab_size
         self.embedding_size = 300
@@ -22,7 +20,6 @@ class Model(tf.keras.Model):
         self.num_classes = 2
         # LSTM units
         self.units = 150
-
         # Initializing Adam optimizer
         self.optimizer = tf.keras.optimizers.Adam(
            learning_rate=self.learning_rate)
