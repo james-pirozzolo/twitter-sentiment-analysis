@@ -2,6 +2,6 @@
 data/
 env/
 node_modules/
-model/
 saved_model/
 server/
+__pycache__/
