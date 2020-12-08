@@ -3,5 +3,5 @@ data/
 env/
 node_modules/
 saved_model/
-server/
+flask_server/
 __pycache__/
