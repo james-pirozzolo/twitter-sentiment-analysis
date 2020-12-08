@@ -21,11 +21,11 @@ def load_model(filepath):
     param filepath: file path to files storing layers
     return: layers required for loaded mode
     '''
-    embedding = np.load(filepath + '/embedding.npy', allow_pickle='TRUE').item()
-    lstm = np.load(filepath + '/lstm.npy', allow_pickle='TRUE').item()
-    dense_1 = np.load(filepath + '/dense_1.npy', allow_pickle='TRUE').item()
-    dense_2 = np.load(filepath + '/dense_2.npy', allow_pickle='TRUE').item()
-    vocab = np.load(filepath + '/vocab.npy', allow_pickle='TRUE').item()
+    embedding = np.load(filepath + 'embedding.npy', allow_pickle='TRUE').item()
+    lstm = np.load(filepath + 'lstm.npy', allow_pickle='TRUE').item()
+    dense_1 = np.load(filepath + 'dense_1.npy', allow_pickle='TRUE').item()
+    dense_2 = np.load(filepath + 'dense_2.npy', allow_pickle='TRUE').item()
+    vocab = np.load(filepath + 'vocab.npy', allow_pickle='TRUE').item()
     return (embedding, lstm, dense_1, dense_2, vocab)
 
 def get_tweet_sentiment(model,vocab,raw_tweet):

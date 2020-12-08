@@ -54,7 +54,7 @@ app.post('/tweet_sentiment', (req, res) => {
 const runPy = (rawTweet) => {
     return new Promise(function(success, nosuccess) {
         const { spawn } = require('child_process');
-        const python_prog = spawn('python', ['../code/repl.py', rawTweet, '../saved_model'])
+        const python_prog = spawn('python', ['../model/repl.py', rawTweet, '../saved_model/'])
 
         python_prog.stdout.on('data', function(data) {
             success(data);
