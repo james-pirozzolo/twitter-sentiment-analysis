@@ -3,10 +3,6 @@
   margin-top: 18rem;
 }
 
-.container {
-  max-width: 800px;
-}
-
 .model {
   border-top: 1px solid #eee;
   padding-top: 10rem;
@@ -50,11 +46,8 @@
 }
 
 .loader {
-  /* border: 16px solid #f3f3f3; Light grey */
-  /* border-top: 16px solid #3498db; Blue */
   border: 4px solid #f3f3f3;
   border-top: 4px solid #42f0c7;
-  /* Blue */
   border-radius: 50%;
   width: 30px;
   height: 30px;
@@ -70,3 +63,15 @@
 .collapse {
   display: none;
 }
+
+label {
+  margin-bottom: 1rem;
+}
+
+#container {
+  margin: 20px;
+  margin-top: 35px;
+  width: 400px;
+  height: 8px;
+}
+

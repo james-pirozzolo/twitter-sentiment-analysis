@@ -49,31 +49,6 @@ app.post('/tweet_sentiment', (req, res) => {
         });
         res.end();
     })
-    // res.json({
-    //     setiment: 69
-    // });
-    // const python = spawn('python', ['../code/repl.py', rawTweet, '../saved_model'])
-    // // const python = spawn('python', ['../code/tst.py', 'world'])
-    // // console.log('f')
-    // python.stdout.on('data', (data) => {
-    //     score = data.toString();
-    //     console.log(score)
-    // });
-    // python.on('close', (code) => {
-    //     // send data to browser
-    //     console.log('here motherfu')
-    //     // console.log(score)
-    //     // res.json({
-    //     //     sentiment: score
-    //     // });
-    // });
-    // // console.log('here!')
-    // // python.stdout.on('data', function(data) {
-    
-    // //     console.log(data.toString().trim());
-    // //     // res.write(data);
-    // //     // res.end('end');
-    // // });
 })
 
 const runPy = (rawTweet) => {
@@ -84,11 +59,6 @@ const runPy = (rawTweet) => {
         python_prog.stdout.on('data', function(data) {
             success(data);
         });
-
-        // comment out bc tensorflow "boot up" goes to stderr
-        // python_prog.stderr.on('data', (data) => {
-        //     nosuccess(data);
-        // });
     });
 }
 
