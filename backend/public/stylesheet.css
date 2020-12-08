@@ -69,9 +69,12 @@ label {
 }
 
 #container {
-  margin: 20px;
+  margin-bottom: 20px;
   margin-top: 35px;
-  width: 400px;
   height: 8px;
 }
 
+/* .score-discuss > div {
+  float:left;
+  margin-left:1.5rem;
+} */

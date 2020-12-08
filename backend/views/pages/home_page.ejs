@@ -24,15 +24,24 @@
         </div>
       </div>
       <div class="six columns">
-        <div class="sentiment-score">
+        <div class="sentiment-score u-full-width">
           <div id="container"></div>
+        </div>
+        <div class="score-discuss">
+          <div class="collapse" id="positive-note">
+            your inputted Tweet has a positive sentiment &#x1F605; 
+          </div>
+          <div class="collapse" id="negative-note">
+            your inputted Tweet has a negative sentiment &#x1F613; 
+          </div>
+          <div class="score collapse" id='acc'>accuracy: <span id="score"></span>%</div>
         </div>
       </div>
     </section>
   </div>
   <div class="footer">
-    <a class="github-button" href="https://github.com/james-pirozzolo/twitter-sentiment-analysis" data-icon="octicon-star"
-      aria-label="Star james-pirozzolo/twitter-sentiment-analysis on GitHub">Star</a>
+    <a class="github-button" href="https://github.com/wkantaros/twitter-sentiment-analysis" data-icon="octicon-star"
+      aria-label="Star wkantaros/twitter-sentiment-analysis on GitHub">Star</a>
     <script src="getSentiment.js"></script>
   </div>
 </body>

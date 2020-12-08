@@ -101,8 +101,7 @@ def train(model, train_inputs, train_labels):
             loss = model.loss(probs, lbatch)
         # updating gradients
         gradients = tape.gradient(loss, model.trainable_variables)
-        model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-    return None   
+        model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))  
 
 def test(model, test_inputs, test_labels):
     """

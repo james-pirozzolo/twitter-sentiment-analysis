@@ -3,6 +3,10 @@ const spinner = document.getElementById('sentiment-loader');
 
 const API_URL = window.location.href;
 
+var percent = document.getElementById('score');
+var acc = document.getElementById('acc');
+var positive = document.getElementById('positive-note');
+var negative = document.getElementById('negative-note');
 // bar to be used to show sentiment 
 var bar = new ProgressBar.Line(container, {
   strokeWidth: 4,
@@ -17,7 +21,6 @@ var bar = new ProgressBar.Line(container, {
   to: {color: '#2BD469'},
   step: (state, bar) => {
     bar.path.setAttribute('stroke', state.color);
-    bar.setText(Math.round(bar.value()*100)+ ' %')
   },
 
 });
@@ -38,9 +41,20 @@ form.addEventListener('submit', (event) => {
         }
     }).then(res => res.json())
     .then(data => {
-      score = data.neg_sentiment;
+      neg_score = data.neg_sentiment;
       spinner.classList.add('collapse');
-      // alert(score);
-      score === -1 ? console.log('error retrieving tweet') : bar.animate(1-score);
+      // alert(neg_score);
+      neg_score === -1 ? console.log('error retrieving tweet') : bar.animate(1-neg_score);
+      positive.classList.add('collapse');
+      negative.classList.add('collapse');
+      if (neg_score > .5)
+        negative.classList.remove('collapse');
+      else
+        positive.classList.remove('collapse');
+      acc.classList.remove('collapse');
+      console.log('ehre fuck')
+      console.log(Math.round(neg_score*100));
+      score = neg_score > .5 ? Math.round(neg_score*100) : 100-Math.round(neg_score*100)
+      percent.textContent=`${score}`;
     })
 });

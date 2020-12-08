@@ -103,7 +103,6 @@ def train(model, train_inputs, train_labels):
         # incrementing counters
         i += model.batch_size
         num_batch += 1
-    return None   
 
 def test(model, test_inputs, test_labels):
     """
