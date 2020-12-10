@@ -3,7 +3,7 @@ import numpy as np
 from tensorflow.keras import Model
 
 class Model(tf.keras.Model):
-    def __init__(self, embedding, lstm, dense_1, dense_2, vocab_dict):
+    def __init__(self, embedding, lstm, dense_1, dense_2):
         """
         The Model class computes the sentiment predictions for a batch of tweets 
         :param vocab_size: The number of unique words in the data

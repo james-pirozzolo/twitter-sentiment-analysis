@@ -1,0 +1,7 @@
+.DS_Store
+data/
+env/
+node_modules/
+saved_model/
+flask_server/
+__pycache__/
